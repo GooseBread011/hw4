@@ -6,39 +6,37 @@
 #include "equal-paths.h"
 using namespace std;
 
+bool treeSearch(Node* root, int& leaf);
 
 // You may add any prototypes of helper functions here
 bool treeSearch (Node* root, int& leaf)
 {
+  int leftSide = 0;
+  int rightSide = 0;
   // Empty Tree
   if (root == nullptr){
     leaf = 0;
     return true;
   }
-  // No Children Checker
-  if (root->left == nullptr && root->right == nullptr){
+  // Both Left and Right subtree has no children left
+  if(root->left == nullptr && root->right == nullptr){
     leaf = 0;
     return true;
   }
-
-  // Path Direction Variables
-  int leftSide = 0;
-  int rightSide = 0;
-
-  // Search the left and right trees 
+  // Leaf Checker
   if (root->left != nullptr && root->right != nullptr){
-    // Check the left side
-    if (treeSearch(root->left, leftSide) == false){
+    if(treeSearch(root->left, leftSide) == false){
       return false;
     }
     if (treeSearch(root->right, rightSide) == false){
       return false;
     }
-    // If left side != right side
     if (leftSide != rightSide){
-      return false;
+      return false
     }
-
+    leaf = leftSide + 1;
+    return true;
+  }
 }
 
 
@@ -47,6 +45,5 @@ bool equalPaths(Node * root)
     // Add your code below
     int leafNodes = 0;
     return treeSearch(root, leafNodes);
-    
 }
 
