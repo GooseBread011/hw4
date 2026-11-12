@@ -23,7 +23,7 @@ bool treeSearch (Node* root, int& leaf)
     leaf = 0;
     return true;
   }
-  // Leaf Checker
+  // Leaf Case Checker if Left and Right are Not Equal
   if (root->left != nullptr && root->right != nullptr){
     // Check if left subtree are equal
     if(treeSearch(root->left, leftSide) == false){
@@ -47,6 +47,7 @@ bool treeSearch (Node* root, int& leaf)
     }
     leaf = leftSide + 1;
   }
+  // Right Leaf Exists but not left
   if (treeSearch(root->right, rightSide) == false){
     return false;
   }
