@@ -48,7 +48,7 @@ bool treeSearch (Node* root, int& leaf)
     leaf = leftSide + 1;
   }
   if (treeSearch(root->right, rightSide) == false){
-    return false'
+    return false;
   }
   leaf = rightSide + 1;
   return true;
