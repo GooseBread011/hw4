@@ -342,10 +342,10 @@ BinarySearchTree<Key, Value>::iterator::operator++()
       return *this;
     }
     // Right Child first then Left
-    if (current->getRight() != NULL){
-      current_ = current->getRight();
+    if (current_->getRight() != NULL){
+      current_ = current_->getRight();
       while (current_->getLeft() != NULL){
-        current_ = current->getLeft();
+        current_ = current_->getLeft();
       }
     }
     // No right child exists
@@ -471,9 +471,35 @@ template<class Key, class Value>
 void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &keyValuePair)
 {
     // TODO
+    Node<Key, Value>* curr = root_;
+    // Empty Tree
     if (root_ == NULL){
       root_ = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, NULL);
       return;
+    }
+    // Loop through tree
+    while(true){
+      if(keyValuePair.first < curr->getKey()){
+        // Insert Node into left if Null
+        if (curr->getLeft() == NULL){
+          curr->setLeft(new Node<Key, Value>(keyValuePair.first, keyValuePair.second, curr));
+          return;
+        }
+        curr = curr->getLeft();
+      }
+      else if (curr->getKey() < keyValuePair.first){
+        // Insert Node into Right if NULL
+        if(curr->getRight() == NULL){
+          curr->setRight(new Node<Key, Value>(keyValuePair.first, keyValuePair.second, curr));
+          return;
+        }
+        curr = curr->getRight();
+      }
+      else {
+        // Overwrite current value
+        curr->setValue(keyValuePair.second);
+        return;
+      }
     }
 }
 
@@ -487,6 +513,39 @@ template<typename Key, typename Value>
 void BinarySearchTree<Key, Value>::remove(const Key& key)
 {
     // TODO
+    Node<Key, Value>* n = internalFind(key);
+    // Empty Tree, No Node
+    if (n == NULL){
+      return;
+    }
+    // Swap with predecessor
+    if (n->getLeft() != NULL && n->getRight() != NULL){
+      nodeSwap(n, predecessor(n));
+    }
+    Node<Key, Value>* child = NULL;
+    Node<Key,Value>* parent = n->getParent();
+    //Update Child
+    if (n->getLeft() != NULL){
+      child = n->getLeft();
+    }
+    else {
+      child = n->getRight();
+    }
+    // Set New Parent
+    if (child != NULL){
+      child->setParent(parent);
+    }
+    // Update root and Parent if needed
+    if (parent == NULL){
+      root_ = child;
+    }
+    else if (parent->getLeft() == n){
+      parent->setLeft(child);
+    }
+    else {
+      parent->setRight(child);
+    }
+    delete n;
 }
 
 
