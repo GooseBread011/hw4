@@ -269,6 +269,35 @@ template<class Key, class Value>
 void AVLTree<Key, Value>::insert (const std::pair<const Key, Value> &new_item)
 {
     // TODO
+    // Empty Tree
+    if (this->root_ == NULL){
+      this->root_ = new AVLNode<Key, Value>(new_item.first, new_item.second, NULL);
+      return;
+    }
+    // Loop through tree
+    while(true){
+      if(new_item.first < curr->getKey()){
+        // Insert Node into left if Null
+        if (curr->getLeft() == NULL){
+          curr->setLeft(new AVLNode<Key, Value>(new_item.first, new_item.second, curr));
+          return;
+        }
+        curr = curr->getLeft();
+      }
+      else if (curr->getKey() < new_item.first){
+        // Insert Node into Right if NULL
+        if(curr->getRight() == NULL){
+          curr->setRight(new AVLNode<Key, Value>(new_item.first, new_item.second, curr));
+          return;
+        }
+        curr = curr->getRight();
+      }
+      else {
+        // Overwrite current value
+        curr->setValue(new_item.second);
+        return;
+      }
+    }
 }
 
 /*
@@ -279,6 +308,39 @@ template<class Key, class Value>
 void AVLTree<Key, Value>:: remove(const Key& key)
 {
     // TODO
+    Node<Key, Value>* n = internalFind(key);
+    // Empty Tree, No Node
+    if (n == NULL){
+      return;
+    }
+    // Swap with predecessor
+    if (n->getLeft() != NULL && n->getRight() != NULL){
+      nodeSwap(n, predecessor(n));
+    }
+    Node<Key, Value>* child = NULL;
+    Node<Key,Value>* parent = n->getParent();
+    //Update Child
+    if (n->getLeft() != NULL){
+      child = n->getLeft();
+    }
+    else {
+      child = n->getRight();
+    }
+    // Set New Parent
+    if (child != NULL){
+      child->setParent(parent);
+    }
+    // Update root and Parent if needed
+    if (parent == NULL){
+      root_ = child;
+    }
+    else if (parent->getLeft() == n){
+      parent->setLeft(child);
+    }
+    else {
+      parent->setRight(child);
+    }
+    delete n;
 }
 
 template<class Key, class Value>
