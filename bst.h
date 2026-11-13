@@ -247,7 +247,8 @@ protected:
     virtual void nodeSwap( Node<Key,Value>* n1, Node<Key,Value>* n2) ;
 
     // Add helper functions here
-
+    void helpClear(Node<Key, Value> *n);
+    
 
 protected:
     Node<Key, Value>* root_;
@@ -277,7 +278,7 @@ template<class Key, class Value>
 BinarySearchTree<Key, Value>::iterator::iterator() 
 {
     // TODO
-  current_ = nullptr;
+  current_ = NULL;
 }
 
 /**
@@ -310,7 +311,7 @@ BinarySearchTree<Key, Value>::iterator::operator==(
     const BinarySearchTree<Key, Value>::iterator& rhs) const
 {
     // TODO
-    return current_ = rhs.current_;
+    return current_ == rhs.current_;
 }
 
 /**
@@ -358,12 +359,14 @@ template<class Key, class Value>
 BinarySearchTree<Key, Value>::BinarySearchTree() 
 {
     // TODO
+    root_ = NULL;
 }
 
 template<typename Key, typename Value>
 BinarySearchTree<Key, Value>::~BinarySearchTree()
 {
     // TODO
+    clear();
 
 }
 
@@ -447,6 +450,10 @@ template<class Key, class Value>
 void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &keyValuePair)
 {
     // TODO
+    if (root_ == NULL){
+      root_ = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, NULL);
+      return;
+    }
 }
 
 
@@ -468,8 +475,38 @@ Node<Key, Value>*
 BinarySearchTree<Key, Value>::predecessor(Node<Key, Value>* current)
 {
     // TODO
+    // No Predecessor Case
+    if (current == NULL){
+      return NULL;
+    }
+    // Right side is the predecessor
+    if (current->getLeft() != NULL){
+      current = current->getLeft();
+      while (current->getRight() != NULL){
+        current = current->getRight();
+      }
+      return current;
+    }
+    // Look for Right Child
+    Node<Key, Value>* parent = current->getParent();
+    while (parent != NULL && current == parent->getLeft()){
+      current = parent;
+      parent = parent->getParent();
+    }
+    return parent;
 }
 
+//Helper function for the clear() function (TODO for ME)
+template<typename Key, typename Value>
+void BinarySearchTree<Key, Value>::helpClear(Node<Key, Value>* n)
+{
+  if (n == NULL){
+    return;
+  }
+  helpClear(n->getLeft());
+  helpClear(n->getRight());
+  delete n;
+}
 
 /**
 * A method to remove all contents of the tree and
@@ -479,6 +516,8 @@ template<typename Key, typename Value>
 void BinarySearchTree<Key, Value>::clear()
 {
     // TODO
+    helpClear(root_);
+    root_ = NULL;
 }
 
 
