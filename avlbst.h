@@ -137,9 +137,129 @@ protected:
     virtual void nodeSwap( AVLNode<Key,Value>* n1, AVLNode<Key,Value>* n2);
 
     // Add helper functions here
+    int height( AVLNode<Key, Value>* n) const;
+    void rbalance( AVLNode<Key, Value>* n);
+    void rleft( AVLNode<Key, Value>* n);
+    void rright( AVLNode<Key,Value>* n);
 
 
 };
+// Helper to determine height of tree
+template <class Key, class Value>
+int AVLTree< Key, Value>::height(AVLNode<Key, Value>* n)
+{
+  // Empty Tree Case
+  if (n == NULL){
+    return 0;
+  }
+  // Trees for left and right
+  int leftTree = height(n->getLeft());
+  int rightTree = height(n->getRight());
+
+  // Check Left Tree Height
+  if (leftTree > rightTree){
+    return leftTree + 1;
+  }
+  // Else Check Right
+  return rightTree + 1;
+}
+
+// Helper for Rotate Left
+template <class Key, class Value>
+void AVLTree<Key, Value>::rleft(AVLNode<Key, Value>* n)
+{
+  AVLNode<Key, Value>* parent = n->getParent();
+  AVLNode<Key, Value>* tempR = n->getRight();
+  AVLNode<Key, Value>* tempL = tempR->getLeft();
+  // Change the Root and keep it the same
+  if (parent == NULL){
+    this->root_ = tempR;
+  }
+  else if (parent->getLeft() == n){
+    parent->setLeft(tempR);
+  }
+  else {
+    parent->setRight(tempR);
+  }
+  tempR->setParent(parent);
+  // Rotate Left
+  tempR->setLeft(n);
+  n->setParent(tempR);
+  n->setRight(tempL);
+  if (tempL != NULL){
+    tempL->setParent(n);
+  }
+}
+
+// Helper for Rotate Right
+template <class Key, class Value>
+void AVLTree<Key, Value>::rright(AVLNode<Key, Value>* n)
+{
+  AVLNode<Key, Value>* parent = n->getParent();
+  AVLNode<Key, Value>* tempL = n->getLeft();
+  AVLNode<Key, Value>* tempR = tempL->getRight();
+  // Change the Root and keep it the same
+  if (parent == NULL){
+    this->root_ = tempL;
+  }
+  else if (parent->getLeft() == n){
+    parent->setLeft(tempL);
+  }
+  else {
+    parent->setRight(tempL);
+  }
+  tempL->setParent(parent);
+  // Rotate Right
+  tempL->setRight(n);
+  n->setParent(tempL);
+  n->setLeft(tempR);
+  if (tempR != NULL){
+    tempR->setParent(n);
+  }
+}
+
+// Helper to Rebalance tree
+template<class Key, class Value>
+void AVLTree<Key, Value>::rbalance(AVLNode<Key, Value>* n)
+{
+  // While the tree still has leaves
+  while (n != NULL){
+    // Balance Factor
+    int balanceFactor = height(n->getRight()) - height(n->getLeft());
+    
+    // If Right Tree is Heavy
+    if (balanceFactor > 1){
+      AVLNode<Key, Value>* rheavy = n->getRight();
+      // Rotate right
+      if (height(rheavy->getLeft()) > height(rheavy->getRight())){
+        rright(rheavy);
+      }
+      // Rotate Left balance
+      rleft(n);
+    }
+    // Left Side is Heavy
+    else if (balanceFactor < -1){
+      AVLNode<Key, Value>* lHeavy = n->getLeft();
+      if (height(lHeavy->getRight()) > height(lHeavy->getLeft())){
+        rleft(lHeavy);
+      } 
+      rright(n);
+    }
+    // After Rotation
+    if (balanceFactor < -1 || balanceFactor > 1){
+      AVLNode<Key, Value>* tempRoot = n->getParent();
+      n->setBalance(height(n->getRight()) - height(n->getLeft()));
+      tempRoot->setBalance(height(tempRoot->getRight()) - height(tempRoot->getLeft()));
+      n = tempRoot->getParent();
+    }
+    // No rotation needed
+    else {
+      n->setBalance(balanceFactor);
+      n = n->getParent();
+    }
+  }
+}
+
 
 /*
  * Recall: If key is already in the tree, you should 
