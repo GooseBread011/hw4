@@ -248,6 +248,7 @@ protected:
 
     // Add helper functions here
     void helpClear(Node<Key, Value> *n);
+    int treeHeight(Node<Key, Value> * n) const;
     
 
 protected:
@@ -336,7 +337,28 @@ typename BinarySearchTree<Key, Value>::iterator&
 BinarySearchTree<Key, Value>::iterator::operator++()
 {
     // TODO
-    
+    // End of the location
+    if (current_ == NULL){
+      return *this;
+    }
+    // Right Child first then Left
+    if (current->getRight() != NULL){
+      current_ = current->getRight();
+      while (current_->getLeft() != NULL){
+        current_ = current->getLeft();
+      }
+    }
+    // No right child exists
+    else {
+      Node<Key, Value>* child = current_;
+      Node<Key, Value>* parent = current_->getParent();
+      while(parent != NULL && child == parent->getRight()){
+        child = parent;
+        parent = parent->getParent();
+      }
+      current_ = parent;
+    }
+    return *this;
 }
 
 
@@ -367,7 +389,6 @@ BinarySearchTree<Key, Value>::~BinarySearchTree()
 {
     // TODO
     clear();
-
 }
 
 /**
@@ -529,6 +550,16 @@ Node<Key, Value>*
 BinarySearchTree<Key, Value>::getSmallestNode() const
 {
     // TODO
+    Node<Key, Value>* curr = root_;
+    // One Node Only
+    if (curr == NULL){
+      return NULL;
+    }
+    // Smallest Node is Left
+    while(curr->getLeft() != NULL){
+      curr = curr->getLeft();
+    }
+    return curr;
 }
 
 /**
@@ -540,6 +571,52 @@ template<typename Key, typename Value>
 Node<Key, Value>* BinarySearchTree<Key, Value>::internalFind(const Key& key) const
 {
     // TODO
+    Node<Key, Value>* curr = root_;
+    while(curr != NULL){
+      // Check Left Side
+      if(key < curr->getKey()){
+        curr = curr->getLeft();
+      }
+      // Key is Larger, check Right Side
+      else if (curr->getKey() < key){
+        curr = curr->getRight();
+      }
+      else {
+        return curr;
+      }
+    }
+    // No Key exists
+    return NULL;
+}
+
+// Helper Function for BST Balance 
+template<typename Key, typename Value>
+int BinarySearchTree<Key, Value>::treeHeight(Node<Key, Value>* n) const
+{
+  // Empty Tree
+  if (n == NULL){
+    return 0;
+  }
+  int leftTree = treeHeight(n->getLeft());
+  int rightTree = treeHeight(n->getRight());
+
+  // If left Side Or Right is unbalanced
+  if (leftTree < 0){
+    return -1;
+  }
+  if (rightTree < 0){
+    return -1;
+  }
+
+  // If Tree Height differs by 1
+  if (leftTree - rightTree > 1 || rightTree-leftTree > 1){
+    return -1;
+  }
+  // Update Heights
+  if (leftTree > rightTree){
+    return leftTree + 1;
+  }
+  return rightTree + 1;
 }
 
 /**
@@ -549,6 +626,7 @@ template<typename Key, typename Value>
 bool BinarySearchTree<Key, Value>::isBalanced() const
 {
     // TODO
+    return treeHeight(root_) >= 0;
 }
 
 
